@@ -1,0 +1,269 @@
+# C My Hub - Application Structure
+
+## Overview
+C My Hub is a Flutter-based health tracking application that provides comprehensive health data visualization and management. The app follows a clean architecture pattern with feature-based organization and uses modern Flutter development practices.
+
+## Project Information
+- **Name**: c_my_hub
+- **Description**: A new Flutter project focused on health tracking
+- **Version**: 1.0.0+1
+- **Flutter SDK**: ^3.5.4
+
+## Architecture Pattern
+
+### Clean Architecture Implementation
+The application follows Clean Architecture principles with clear separation of concerns:
+
+```
+lib/
+├── core/           # Core application infrastructure
+├── features/       # Feature-based modules
+├── shared/         # Shared components and utilities
+├── service/        # Global services
+└── main.dart       # Application entry point
+```
+
+## Directory Structure
+
+### 1. Core (`lib/core/`)
+Contains fundamental application infrastructure:
+
+```
+core/
+├── constants/      # Application constants
+├── router/        # Navigation and routing
+│   ├── app_router.dart     # GoRouter configuration
+│   └── routes.dart         # Route definitions
+└── theme/         # UI theming
+    └── app_theme.dart      # Material theme configuration
+```
+
+### 2. Features (`lib/features/`)
+Feature-based modules implementing business logic:
+
+```
+features/
+├── dashboard/
+│   └── presentation/
+│       └── dashboard_screen.dart    # Main dashboard UI
+└── health/
+    ├── data/
+    │   └── health_service.dart      # Health data service layer
+    ├── domain/
+    │   └── health_providers.dart    # Riverpod state providers
+    └── presentation/
+        └── health_screen.dart       # Health data display UI
+```
+
+### 3. Shared (`lib/shared/`)
+Reusable components across features:
+
+```
+shared/
+├── utils/          # Utility functions and helpers
+└── widgets/        # Reusable UI components
+    ├── activity_card.dart          # Activity display card
+    ├── data_card.dart             # Generic data display card
+    ├── health_summary_card.dart    # Comprehensive health overview
+    ├── main_navigation.dart        # Navigation components
+    └── progress_ring.dart          # Circular progress indicator
+```
+
+### 4. Service (`lib/service/`)
+Global application services:
+
+```
+service/
+└── health_service.dart    # Singleton health data service
+```
+
+## Key Dependencies
+
+### Core Framework
+- **Flutter**: Core framework for cross-platform development
+- **Dart**: Programming language (SDK ^3.5.4)
+
+### State Management
+- **flutter_riverpod**: ^2.6.1 - Reactive state management solution
+- **Provider pattern**: Used for dependency injection and state sharing
+
+### Navigation
+- **go_router**: ^14.6.1 - Declarative routing solution
+- **Navigation 2.0**: Modern Flutter navigation API
+
+### Health Integration
+- **health**: ^13.2.1 - Native health data integration
+- **Platform support**: iOS HealthKit, Android Health Connect
+
+### UI/UX
+- **cupertino_icons**: ^1.0.8 - iOS-style icons
+- **Material Design 3**: Modern Material Design system
+
+### Utilities
+- **equatable**: ^2.0.5 - Value equality comparisons
+- **json_annotation**: ^4.9.0 - JSON serialization support
+
+## Application Flow
+
+### 1. App Initialization (`main.dart`)
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize health service with error handling
+  await HealthService().init();
+  
+  // Launch app with Riverpod state management
+  runApp(ProviderScope(child: MyApp()));
+}
+```
+
+### 2. Navigation Structure
+```
+Dashboard (/) 
+    ↓ [push navigation]
+Health Data (/health)
+    ↓ [pop navigation]
+Dashboard (/)
+```
+
+### 3. State Management Flow
+```
+HealthService (Singleton)
+    ↓ [data fetching]
+Riverpod Providers
+    ↓ [state management]
+Consumer Widgets
+    ↓ [UI updates]
+User Interface
+```
+
+## Feature Breakdown
+
+### Dashboard Feature
+- **Location**: `lib/features/dashboard/`
+- **Purpose**: Main application entry point with health overview
+- **Key Components**:
+  - Time-based greetings (Morning/Afternoon/Evening)
+  - Health summary card with progress rings
+  - Quick stats grid (steps, distance, active time)
+  - Recent activities timeline
+  - Navigation to detailed health views
+
+### Health Feature
+- **Location**: `lib/features/health/`
+- **Purpose**: Detailed health data management and display
+- **Architecture Layers**:
+  - **Data Layer**: Health service integration with native platforms
+  - **Domain Layer**: Business logic and state providers
+  - **Presentation Layer**: UI components and screens
+- **Health Metrics**:
+  - Daily steps with goal tracking
+  - Heart rate monitoring
+  - Calories burned tracking
+  - Sleep duration analysis
+  - Weekly averages and trends
+  - Distance and active time
+
+## UI Components
+
+### Custom Widgets
+1. **HealthSummaryCard**: Comprehensive health overview with progress ring
+2. **ActivityCard**: Timeline display for recent activities
+3. **DataCard**: Generic metric display with navigation
+4. **ProgressRing**: Custom circular progress indicator
+5. **Loading/Error States**: Graceful state handling
+
+### Design System
+- **Material Design 3**: Modern design language
+- **Consistent Spacing**: 8px/16px/20px spacing system
+- **Color Coding**: 
+  - 🟢 Green: Goals achieved
+  - 🟠 Orange: In progress
+  - 🔵 Blue: Getting started
+- **Typography**: Theme-based text styles
+- **Elevation**: Consistent card elevation system
+
+## Data Management
+
+### Health Service Architecture
+```dart
+HealthService (Singleton)
+├── Platform Integration (iOS HealthKit / Android Health Connect)
+├── Data Caching (In-memory caching for performance)
+├── Error Handling (Demo data fallbacks)
+└── Multiple Health Metrics:
+    ├── Steps and goals
+    ├── Heart rate
+    ├── Calories burned
+    ├── Sleep duration
+    ├── Distance tracking
+    └── Active minutes
+```
+
+### State Providers
+- **healthDashboardDataProvider**: Combined health metrics
+- **todaysStepsProvider**: Daily step count
+- **heartRateProvider**: Latest heart rate
+- **caloriesProvider**: Daily calories burned
+- **sleepDurationProvider**: Sleep tracking
+- **weeklyStepAverageProvider**: Weekly trends
+- **distanceTodayProvider**: Daily distance
+- **activeMinutesProvider**: Exercise time
+
+## Platform Support
+
+### Supported Platforms
+- ✅ **iOS**: Full HealthKit integration
+- ✅ **Android**: Health Connect support
+- ✅ **Web**: Limited functionality (demo data)
+- ✅ **macOS**: Limited functionality (demo data)
+- ✅ **Windows**: Limited functionality (demo data)
+- ✅ **Linux**: Limited functionality (demo data)
+
+### Platform-Specific Features
+- **iOS**: Native HealthKit data access
+- **Android**: Health Connect API integration
+- **Desktop/Web**: Demo data with graceful degradation
+
+## Development Setup
+
+### Prerequisites
+- Flutter SDK ^3.5.4
+- Dart SDK (included with Flutter)
+- iOS: Xcode and iOS Simulator
+- Android: Android Studio and Android SDK
+
+### Key Commands
+```bash
+# Install dependencies
+flutter pub get
+
+# Run on iOS simulator
+flutter run -d ios
+
+# Run on Android emulator
+flutter run -d android
+
+# Run on connected device
+flutter run
+
+# Build for production
+flutter build ios
+flutter build apk
+```
+
+## Documentation Files
+- `DASHBOARD_FEATURES.md`: Detailed dashboard functionality
+- `DASHBOARD_ARCHITECTURE.md`: Technical architecture diagrams
+- `DASHBOARD_CUSTOMIZATION.md`: Customization and extension guide
+- `NAVIGATION_FIX.md`: Navigation implementation details
+
+## Future Roadmap
+- AI-powered health insights
+- Social features and sharing
+- Wearable device integration
+- Advanced analytics and trends
+- Goal setting and achievements
+- Notification system
+- Data export capabilities

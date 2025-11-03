@@ -24,8 +24,8 @@ final caloriesProvider = FutureProvider<double?>((ref) async {
   return await healthService.getCalories();
 });
 
-// Sleep Duration Provider
-final sleepDurationProvider = FutureProvider<Duration?>((ref) async {
+// Sleep Duration Provider (returns hours as double)
+final sleepDurationProvider = FutureProvider<double?>((ref) async {
   final healthService = ref.read(healthServiceProvider);
   return await healthService.getSleepDuration();
 });
@@ -46,14 +46,36 @@ final healthDashboardDataProvider =
     healthService.getHeartRate(),
     healthService.getCalories(),
     healthService.getSleepDuration(),
+    healthService.getWeeklyStepAverage(),
+    healthService.getDistanceToday(),
+    healthService.getActiveMinutesToday(),
   ]);
 
   return HealthDashboardData(
     steps: results[0] as int,
     heartRate: results[1] as double?,
     calories: results[2] as double?,
-    sleepDuration: results[3] as Duration?,
+    sleepDuration: results[3] as double?,
+    weeklyStepAverage: results[4] as double?,
+    distance: results[5] as double?,
+    activeMinutes: results[6] as int?,
   );
+});
+
+// Additional Health Data Providers
+final weeklyStepAverageProvider = FutureProvider<double>((ref) async {
+  final healthService = ref.read(healthServiceProvider);
+  return await healthService.getWeeklyStepAverage();
+});
+
+final distanceTodayProvider = FutureProvider<double?>((ref) async {
+  final healthService = ref.read(healthServiceProvider);
+  return await healthService.getDistanceToday();
+});
+
+final activeMinutesProvider = FutureProvider<int?>((ref) async {
+  final healthService = ref.read(healthServiceProvider);
+  return await healthService.getActiveMinutesToday();
 });
 
 // Health Dashboard Data Model
@@ -61,13 +83,19 @@ class HealthDashboardData {
   final int steps;
   final double? heartRate;
   final double? calories;
-  final Duration? sleepDuration;
+  final double? sleepDuration; // Changed to double (hours)
+  final double? weeklyStepAverage;
+  final double? distance;
+  final int? activeMinutes;
 
   HealthDashboardData({
     required this.steps,
     this.heartRate,
     this.calories,
     this.sleepDuration,
+    this.weeklyStepAverage,
+    this.distance,
+    this.activeMinutes,
   });
 
   // Helper methods
@@ -83,8 +111,17 @@ class HealthDashboardData {
 
   String get formattedSleepDuration {
     if (sleepDuration == null) return 'N/A';
-    final hours = sleepDuration!.inHours;
-    final minutes = (sleepDuration!.inMinutes % 60);
-    return '${hours}h ${minutes}m';
+    return '${sleepDuration!.toStringAsFixed(1)}h';
+  }
+
+  String get formattedDistance {
+    if (distance == null) return 'N/A';
+    final km = distance! / 1000;
+    return '${km.toStringAsFixed(1)} km';
+  }
+
+  String get formattedActiveMinutes {
+    if (activeMinutes == null) return 'N/A';
+    return '${activeMinutes!} min';
   }
 }

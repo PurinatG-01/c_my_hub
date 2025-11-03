@@ -15,7 +15,13 @@ class HealthScreen extends ConsumerWidget {
         title: const Text('Health Data'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/'); // Fallback to dashboard
+            }
+          },
         ),
       ),
       body: Padding(
