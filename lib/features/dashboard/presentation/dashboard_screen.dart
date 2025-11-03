@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/data_card.dart';
 import '../../../shared/widgets/health_summary_card.dart';
 import '../../../shared/widgets/activity_card.dart';
+import '../../../shared/widgets/settings_dropdown.dart';
 import '../../../features/health/domain/health_providers.dart';
 import '../../../core/router/routes.dart';
 
@@ -19,22 +20,19 @@ class DashboardScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
+            onPressed: () async {
               // Refresh all health data
-              ref.invalidate(healthDashboardDataProvider);
+              return await ref.refresh(healthDashboardDataProvider);
             },
+            tooltip: 'Refresh Data',
           ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Navigate to settings when created
-            },
-          ),
+          const QuickThemeSwitcher(),
+          const SettingsDropdown(),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(healthDashboardDataProvider);
+          return await ref.refresh(healthDashboardDataProvider);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -52,7 +50,7 @@ class DashboardScreen extends ConsumerWidget {
               Text(
                 'Here\'s your health summary for today',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[600],
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
                     ),
               ),
               const SizedBox(height: 20),
@@ -92,61 +90,70 @@ class DashboardScreen extends ConsumerWidget {
                       ref.watch(weeklyStepAverageProvider);
 
                   return Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: distanceAsync.when(
-                              data: (distance) => DataCard(
-                                icon: Icons.directions_run,
-                                label: 'Distance',
-                                value: distance != null
-                                    ? '${(distance / 1000).toStringAsFixed(1)} km'
-                                    : 'N/A',
-                                onTap: () => context.push(Routes.health),
-                              ),
-                              loading: () => const _LoadingDataCard('Distance'),
-                              error: (_, __) => const DataCard(
-                                icon: Icons.directions_run,
-                                label: 'Distance',
-                                value: 'N/A',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: activeMinutesAsync.when(
-                              data: (minutes) => DataCard(
-                                icon: Icons.fitness_center,
-                                label: 'Active Time',
-                                value:
-                                    minutes != null ? '${minutes} min' : 'N/A',
-                                onTap: () => context.push(Routes.health),
-                              ),
-                              loading: () =>
-                                  const _LoadingDataCard('Active Time'),
-                              error: (_, __) => const DataCard(
-                                icon: Icons.fitness_center,
-                                label: 'Active Time',
-                                value: 'N/A',
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: distanceAsync.when(
+                                data: (distance) => DataCard(
+                                  icon: Icons.directions_run,
+                                  label: 'Distance',
+                                  value: distance != null
+                                      ? '${(distance / 1000).toStringAsFixed(1)} km'
+                                      : 'N/A',
+                                  onTap: () => context.push(Routes.health),
+                                ),
+                                loading: () =>
+                                    const _LoadingDataCard('Distance'),
+                                error: (_, __) => const DataCard(
+                                  icon: Icons.directions_run,
+                                  label: 'Distance',
+                                  value: 'N/A',
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: activeMinutesAsync.when(
+                                data: (minutes) => DataCard(
+                                  icon: Icons.fitness_center,
+                                  label: 'Active Time',
+                                  value: minutes != null
+                                      ? '${minutes} min'
+                                      : 'N/A',
+                                  onTap: () => context.push(Routes.health),
+                                ),
+                                loading: () =>
+                                    const _LoadingDataCard('Active Time'),
+                                error: (_, __) => const DataCard(
+                                  icon: Icons.fitness_center,
+                                  label: 'Active Time',
+                                  value: 'N/A',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      weeklyAverageAsync.when(
-                        data: (average) => DataCard(
-                          icon: Icons.trending_up,
-                          label: 'Weekly Average Steps',
-                          value: '${average.toInt()}',
-                          onTap: () => context.push(Routes.health),
-                        ),
-                        loading: () => const _LoadingDataCard('Weekly Average'),
-                        error: (_, __) => const DataCard(
-                          icon: Icons.trending_up,
-                          label: 'Weekly Average Steps',
-                          value: 'N/A',
+                      Flexible(
+                        child: weeklyAverageAsync.when(
+                          data: (average) => DataCard(
+                            icon: Icons.trending_up,
+                            label: 'Weekly Average Steps',
+                            value: '${average.toInt()}',
+                            onTap: () => context.push(Routes.health),
+                          ),
+                          loading: () =>
+                              const _LoadingDataCard('Weekly Average'),
+                          error: (_, __) => const DataCard(
+                            icon: Icons.trending_up,
+                            label: 'Weekly Average Steps',
+                            value: 'N/A',
+                          ),
                         ),
                       ),
                     ],
@@ -267,7 +274,7 @@ class _ErrorCard extends StatelessWidget {
             Text(
               error,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                   ),
               textAlign: TextAlign.center,
             ),

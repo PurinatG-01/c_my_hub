@@ -23,6 +23,8 @@ class HealthSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stepsProgress = steps / stepsGoal;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Card(
       elevation: 2,
@@ -40,15 +42,15 @@ class HealthSummaryCard extends StatelessWidget {
                 children: [
                   Text(
                     'Today\'s Summary',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   if (onTap != null)
                     Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: Colors.grey[400],
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
                     ),
                 ],
               ),
@@ -88,26 +90,21 @@ class HealthSummaryCard extends StatelessWidget {
                       children: [
                         Text(
                           'Steps',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
                         ),
                         Text(
                           '$steps',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Text(
                           'Goal: $stepsGoal',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
@@ -183,6 +180,9 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -199,15 +199,15 @@ class _MetricTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
             textAlign: TextAlign.center,
           ),
         ],

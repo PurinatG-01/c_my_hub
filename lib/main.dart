@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/health/data/health_service.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,14 +29,17 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(goRouterProvider);
-
-    return MaterialApp.router(
-      title: 'C My Hub - Health Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      routerConfig: router,
-    );
+    return Consumer(builder: (context, watch, child) {
+      final router = ref.watch(goRouterProvider);
+      final themeNotifier = ref.watch(themeProvider);
+      return MaterialApp.router(
+        title: 'C My Hub - Health Tracker',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeNotifier.toThemeMode,
+        routerConfig: router,
+      );
+    });
   }
 }

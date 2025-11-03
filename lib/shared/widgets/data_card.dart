@@ -16,8 +16,12 @@ class DataCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Card.filled(
-      color: Colors.white,
+      color: theme.cardTheme.color ??
+          (isDark ? const Color(0xFF2D2D2D) : Colors.white),
       elevation: 1,
       child: InkWell(
         onTap: onTap,
@@ -29,12 +33,13 @@ class DataCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: theme.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  color: Theme.of(context).primaryColor,
+                  size: 24, // Fixed size for consistency
+                  color: theme.primaryColor,
                 ),
               ),
               const SizedBox(width: 16),
@@ -44,26 +49,28 @@ class DataCard extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       value,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (onTap != null)
+              if (onTap != null) ...[
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: Colors.grey[400],
+                  color: isDark ? Colors.grey[500] : Colors.grey[400],
                 ),
+              ],
             ],
           ),
         ),

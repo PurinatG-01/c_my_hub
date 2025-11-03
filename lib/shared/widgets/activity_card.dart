@@ -67,12 +67,16 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: isDark ? Colors.grey[800] : Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[200]!),
+        border:
+            Border.all(color: isDark ? Colors.grey[600]! : Colors.grey[200]!),
       ),
       child: Row(
         children: [
@@ -95,15 +99,15 @@ class _ActivityTile extends StatelessWidget {
               children: [
                 Text(
                   activity.name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   activity.subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
               ],
             ),
@@ -113,17 +117,17 @@ class _ActivityTile extends StatelessWidget {
             children: [
               Text(
                 activity.value,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: activity.color,
-                    ),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: activity.color,
+                ),
               ),
               if (activity.unit != null)
                 Text(
                   activity.unit!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
             ],
           ),
@@ -136,6 +140,9 @@ class _ActivityTile extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
@@ -143,20 +150,20 @@ class _EmptyState extends StatelessWidget {
           Icon(
             Icons.fitness_center_outlined,
             size: 48,
-            color: Colors.grey[400],
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
           ),
           const SizedBox(height: 8),
           Text(
             'No recent activities',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+            ),
           ),
           Text(
             'Start tracking your workouts!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: isDark ? Colors.grey[500] : Colors.grey[500],
+            ),
           ),
         ],
       ),

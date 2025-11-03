@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/health_service.dart';
 
@@ -38,7 +39,7 @@ final healthDashboardDataProvider =
     FutureProvider<HealthDashboardData>((ref) async {
   // Watch the refresh provider to trigger refresh
   ref.watch(healthDataRefreshProvider);
-
+  debugPrint("Health data refresh triggered");
   final healthService = ref.read(healthServiceProvider);
 
   final results = await Future.wait([
@@ -50,7 +51,6 @@ final healthDashboardDataProvider =
     healthService.getDistanceToday(),
     healthService.getActiveMinutesToday(),
   ]);
-
   return HealthDashboardData(
     steps: results[0] as int,
     heartRate: results[1] as double?,
