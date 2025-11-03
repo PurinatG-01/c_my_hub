@@ -1,4 +1,5 @@
 // Singleton Health Service
+import 'package:flutter/foundation.dart';
 import 'package:health/health.dart';
 
 class HealthService {

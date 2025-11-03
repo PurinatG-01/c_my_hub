@@ -39,7 +39,6 @@ final healthDashboardDataProvider =
     FutureProvider<HealthDashboardData>((ref) async {
   // Watch the refresh provider to trigger refresh
   ref.watch(healthDataRefreshProvider);
-  debugPrint("Health data refresh triggered");
   final healthService = ref.read(healthServiceProvider);
 
   final results = await Future.wait([
@@ -51,6 +50,7 @@ final healthDashboardDataProvider =
     healthService.getDistanceToday(),
     healthService.getActiveMinutesToday(),
   ]);
+  await Future.delayed(const Duration(seconds: 5)); // Simulate delay
   return HealthDashboardData(
     steps: results[0] as int,
     heartRate: results[1] as double?,

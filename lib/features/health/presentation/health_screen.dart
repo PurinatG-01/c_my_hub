@@ -10,6 +10,44 @@ class HealthScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Listen to steps provider state changes at widget level for proper registration
+    ref.listen<AsyncValue<int>>(todaysStepsProvider, (previous, next) {
+      next.when(
+        data: (data) {
+          // Dismiss loading SnackBar when data loads successfully
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+        loading: () {
+          // Show loading SnackBar with animation
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text('Loading steps data...'),
+                ],
+              ),
+              duration: Duration(seconds: 30),
+            ),
+          );
+        },
+        error: (error, stack) {
+          // Show error SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error loading steps: $error')),
+          );
+        },
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Data'),
@@ -113,7 +151,9 @@ class HealthScreen extends ConsumerWidget {
                           Text('Error loading health data: $error'),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () => ref.refresh(todaysStepsProvider),
+                            onPressed: () {
+                              final _ = ref.refresh(todaysStepsProvider);
+                            },
                             child: const Text('Retry'),
                           ),
                         ],

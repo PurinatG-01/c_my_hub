@@ -14,6 +14,48 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Listen to health data state changes at widget level for proper registration
+    ref.listen<AsyncValue<HealthDashboardData>>(healthDashboardDataProvider,
+        (previous, next) {
+      next.when(
+        data: (data) {
+          debugPrint("[------ Data ------]");
+          // Dismiss any loading SnackBar when data loads successfully
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+        loading: () {
+          debugPrint("[------ Loading ------]");
+          // Show loading SnackBar with animation
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text('Loading health data...'),
+                ],
+              ),
+              duration: Duration(minutes: 1),
+            ),
+          );
+        },
+        error: (error, stack) {
+          debugPrint("[------ Error ------]");
+          // Show error SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $error')),
+          );
+        },
+      );
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Health Dashboard'),
@@ -21,8 +63,9 @@ class DashboardScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
-              // Refresh all health data
-              return await ref.refresh(healthDashboardDataProvider);
+              // Use the refresh provider to properly trigger loading state
+              debugPrint("[REFRESH] Incrementing refresh provider");
+              ref.read(healthDataRefreshProvider.notifier).state++;
             },
             tooltip: 'Refresh Data',
           ),
@@ -32,7 +75,11 @@ class DashboardScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          return await ref.refresh(healthDashboardDataProvider);
+          // Use the refresh provider to properly trigger loading state
+          debugPrint("[REFRESH] Pull to refresh triggered");
+          ref.read(healthDataRefreshProvider.notifier).state++;
+          // Wait for the provider to complete
+          await ref.read(healthDashboardDataProvider.future);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -61,21 +108,18 @@ class DashboardScreen extends ConsumerWidget {
                   final healthDataAsync =
                       ref.watch(healthDashboardDataProvider);
 
-                  return healthDataAsync.when(
-                    data: (healthData) => HealthSummaryCard(
+                  if (healthDataAsync.hasValue && !healthDataAsync.hasError) {
+                    final healthData = healthDataAsync.value!;
+                    return HealthSummaryCard(
                       steps: healthData.steps,
                       stepsGoal: 10000, // Default goal
                       heartRate: healthData.heartRate,
                       calories: healthData.calories,
                       sleepHours: healthData.sleepDuration,
                       onTap: () => context.push(Routes.health),
-                    ),
-                    loading: () => const _LoadingCard(),
-                    error: (error, stack) => _ErrorCard(
-                      error: error.toString(),
-                      onRetry: () => ref.refresh(healthDashboardDataProvider),
-                    ),
-                  );
+                    );
+                  }
+                  return const _LoadingCard();
                 },
               ),
 
