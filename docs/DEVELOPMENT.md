@@ -26,12 +26,7 @@ This guide provides comprehensive information for developers working on the C My
 - **Android SDK**: API level 21 (Android 5.0) or higher
 - **Android Emulator**: Or physical device with USB debugging
 
-#### Web Development
-
-- **Chrome**: For web debugging and testing
-- **Web Server**: Built-in Flutter web server
-
-#### macOS Development
+#### Mobile Development
 
 - **macOS**: 10.14 (Mojave) or higher
 - **Xcode Command Line Tools**: For native compilation
@@ -81,18 +76,17 @@ The project includes a comprehensive `.vscode/launch.json` with multiple debuggi
 
 ### Debug Configurations Overview
 
-| Configuration                | Purpose                    | Target Platform   | Mode    |
-| ---------------------------- | -------------------------- | ----------------- | ------- |
-| Flutter: Debug               | General development        | Auto-detect       | Debug   |
-| Flutter: Profile             | Performance testing        | Auto-detect       | Profile |
-| Flutter: Release             | Production testing         | Auto-detect       | Release |
-| Flutter: Debug (iOS)         | iOS-specific debugging     | iOS Simulator     | Debug   |
-| Flutter: Debug (Android)     | Android-specific debugging | Android Emulator  | Debug   |
-| Flutter: Debug (Chrome)      | Web debugging              | Chrome Browser    | Debug   |
-| Flutter: Debug (macOS)       | Desktop debugging          | macOS Native      | Debug   |
-| Flutter: Test (Current File) | Unit test debugging        | Current test file | Debug   |
-| Flutter: Integration Tests   | E2E test debugging         | Test driver       | Debug   |
-| Dart: Debug (Console)        | Pure Dart debugging        | Terminal          | Debug   |
+| Configuration            | Purpose                    | Target Platform  | Mode    |
+| ------------------------ | -------------------------- | ---------------- | ------- |
+| Flutter: Debug           | General development        | Auto-detect      | Debug   |
+| Flutter: Profile         | Performance testing        | Auto-detect      | Profile |
+| Flutter: Release         | Production testing         | Auto-detect      | Release |
+| Flutter: Debug (iOS)     | iOS-specific debugging     | iOS Simulator    | Debug   |
+| Flutter: Debug (Android) | Android-specific debugging | Android Emulator | Debug   |
+
+| Flutter: Test (Current File) | Unit test debugging | Current test file | Debug |
+| Flutter: Integration Tests | E2E test debugging | Test driver | Debug |
+| Dart: Debug (Console) | Pure Dart debugging | Terminal | Debug |
 
 ### Advanced Debug Features
 
@@ -222,21 +216,14 @@ flutter build appbundle
 flutter build apk --dart-define=ENVIRONMENT=production
 ```
 
-#### Web
+#### Mobile Optimization
 
 ```bash
-# Build for web
-flutter build web
+# Build optimized APK for production
+flutter build apk --release --split-per-abi
 
-# Build with specific renderer
-flutter build web --web-renderer html
-```
-
-#### macOS
-
-```bash
-# Build macOS app
-flutter build macos
+# Build iOS for production (requires Apple Developer account)
+flutter build ios --release
 ```
 
 ## 🔧 Development Tools
@@ -377,7 +364,7 @@ While debugging, use these console commands:
 - [ ] Run `flutter analyze` with no issues
 - [ ] Run `dart format .` to ensure consistent formatting
 - [ ] Run unit tests with `flutter test`
-- [ ] Test on target platforms (iOS/Android/Web)
+- [ ] Test on target platforms (iOS/Android)
 - [ ] Update documentation if needed
 - [ ] Check VS Code debug configurations work
 - [ ] Verify environment variables are properly configured

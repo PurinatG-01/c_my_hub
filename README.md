@@ -1,6 +1,9 @@
 # C My Hub - Health Tracking App
 
-C My Hub is a modern, Flutter-based health and fitness application designed to provide a comprehensive and intuitive way to track your well-being. It features a beautiful, data-rich dashboard and an intelligent AI health assistant to help you stay on top of your goals.
+[![PR Checks](https://github.com/PurinatG-01/c_my_hub/actions/workflows/pr_checks.yml/badge.svg)](https://github.com/PurinatG-01/c_my_hub/actions/workflows/pr_checks.yml)
+[![Advanced Analysis](https://github.com/PurinatG-01/c_my_hub/actions/workflows/advanced_analysis.yml/badge.svg)](https://github.com/PurinatG-01/c_my_hub/actions/workflows/advanced_analysis.yml)
+
+C My Hub is a modern, Flutter-based health and fitness application designed to provide a comprehensive and intuitive way to track your well-being. It seamlessly integrates with native health services like Apple Health and Android Health Connect to gather and present your health data. The app features a beautiful, data-rich dashboard and an intelligent AI health assistant to help you stay on top of your goals.
 
 <p align="center">
   <img src="https://placehold.co/600x300/2E7D32/FFFFFF/png?text=C+My+Hub" alt="C My Hub Banner">
@@ -11,7 +14,7 @@ C My Hub is a modern, Flutter-based health and fitness application designed to p
 - **🩺 Comprehensive Health Dashboard**: An elegant dashboard that provides an at-a-glance summary of your daily health metrics, including steps, heart rate, calories, and sleep.
 - **🤖 AI Health Assistant**: An intelligent assistant powered by the OpenAI API that provides personalized health coaching, goal setting, and data analysis.
 - **🎨 Customizable Themes**: Switch between a clean light theme and a sleek dark theme, with your preference saved across sessions.
-- **📱 Cross-Platform**: Built with Flutter, C My Hub runs smoothly on both iOS and Android from a single codebase.
+- **📱 Mobile-First**: Built with Flutter specifically for iOS and Android, providing native mobile performance and seamless integration with device health services.
 - **🔒 Privacy-Focused**: Your health data is sensitive. The app integrates with Apple Health and Android's Health Connect, keeping your data secure on your device.
 
 ## 📚 Documentation
@@ -70,7 +73,7 @@ For comprehensive debugging setup and VS Code integration, see the [Application 
 
 - **VS Code Debug Configurations**: Pre-configured launch settings for all platforms
 - **Multiple Debug Modes**: Debug, Profile, and Release mode configurations
-- **Platform-Specific Debugging**: iOS, Android, Web, and macOS targets
+- **Platform-Specific Debugging**: iOS and Android mobile targets
 - **Testing Support**: Dedicated configurations for unit and integration tests
 - **Hot Reload Integration**: Full development workflow optimization
 

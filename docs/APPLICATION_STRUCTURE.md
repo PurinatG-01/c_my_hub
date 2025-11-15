@@ -88,7 +88,7 @@ service/
 
 ### Core Framework
 
-- **Flutter**: Core framework for cross-platform development
+- **Flutter**: Core framework for mobile-first development
 - **Dart**: Programming language (SDK ^3.5.4)
 
 ### State Management
@@ -237,18 +237,14 @@ HealthService (Singleton)
 
 ### Supported Platforms
 
-- ✅ **iOS**: Full HealthKit integration
-- ✅ **Android**: Health Connect support
-- ✅ **Web**: Limited functionality (demo data)
-- ✅ **macOS**: Limited functionality (demo data)
-- ✅ **Windows**: Limited functionality (demo data)
-- ✅ **Linux**: Limited functionality (demo data)
+- ✅ **iOS**: Full HealthKit integration with native health data access
+- ✅ **Android**: Health Connect support for comprehensive health tracking
 
 ### Platform-Specific Features
 
-- **iOS**: Native HealthKit data access
-- **Android**: Health Connect API integration
-- **Desktop/Web**: Demo data with graceful degradation
+- **iOS**: Native HealthKit data access, background health monitoring
+- **Android**: Health Connect API integration, fitness tracking permissions
+- **Mobile-Optimized**: Designed specifically for smartphone health sensors and APIs
 
 ## Development Setup
 
@@ -295,7 +291,7 @@ The project includes a comprehensive `.vscode/launch.json` configuration for eff
 
 - **Flutter: Debug (iOS Simulator)** - Target iOS simulator specifically
 - **Flutter: Debug (Android Emulator)** - Target Android emulator
-- **Flutter: Debug (Chrome)** - Web debugging with HTML renderer
+
 - **Flutter: Debug (macOS)** - Native macOS desktop app debugging
 
 **Testing Configurations:**
@@ -320,7 +316,7 @@ The project includes a comprehensive `.vscode/launch.json` configuration for eff
 - **Call Stack Navigation**: Step through code execution paths
 - **Console Output**: Integrated debug console with Flutter logs
 - **Environment Variables**: Custom dart-define variables for different build environments
-- **Cross-Platform Support**: Unified debugging across iOS, Android, Web, and Desktop
+- **Mobile-First Support**: Optimized debugging for iOS and Android development
 
 #### Quick Start Debugging:
 

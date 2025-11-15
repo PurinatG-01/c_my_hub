@@ -1,6 +1,6 @@
 # C My Hub - Features
 
-This document outlines the key features of the C My Hub application, combining health tracking with an intelligent AI assistant.
+This document outlines the key features of the C My Hub application, a comprehensive health and fitness tracker that seamlessly integrates with native health services like Apple Health and Android Health Connect, combining health tracking with an intelligent AI assistant.
 
 ## 🩺 Health Dashboard
 
