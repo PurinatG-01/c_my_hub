@@ -279,6 +279,57 @@ flutter build ios
 flutter build apk
 ```
 
+### VS Code Debugging Setup
+
+The project includes a comprehensive `.vscode/launch.json` configuration for efficient debugging across all platforms. Access these configurations through the VS Code Debug panel (`Cmd+Shift+D` on macOS).
+
+#### Available Debug Configurations:
+
+**Basic Flutter Modes:**
+
+- **Flutter: Debug** - Standard debug mode for active development
+- **Flutter: Profile** - Performance profiling mode for optimization
+- **Flutter: Release** - Production release mode testing
+
+**Platform-Specific Debugging:**
+
+- **Flutter: Debug (iOS Simulator)** - Target iOS simulator specifically
+- **Flutter: Debug (Android Emulator)** - Target Android emulator
+- **Flutter: Debug (Chrome)** - Web debugging with HTML renderer
+- **Flutter: Debug (macOS)** - Native macOS desktop app debugging
+
+**Testing Configurations:**
+
+- **Flutter: Test (Current File)** - Debug the currently open test file
+- **Flutter: Integration Tests** - Run integration tests with special flags
+- **Dart: Debug (Console)** - Debug pure Dart files in terminal
+
+**Advanced Configuration:**
+
+- **Flutter: Debug with Custom Entry Point** - Includes custom environment variables and API endpoints for different environments
+
+**Compound Configuration:**
+
+- **Flutter: Debug All Platforms** - Simultaneously debug on iOS and Android
+
+#### Debug Features:
+
+- **Breakpoint Support**: Full breakpoint functionality across all platforms
+- **Hot Reload**: Instant code changes during debug sessions
+- **Variable Inspection**: Real-time variable watching and evaluation
+- **Call Stack Navigation**: Step through code execution paths
+- **Console Output**: Integrated debug console with Flutter logs
+- **Environment Variables**: Custom dart-define variables for different build environments
+- **Cross-Platform Support**: Unified debugging across iOS, Android, Web, and Desktop
+
+#### Quick Start Debugging:
+
+1. Open VS Code Debug panel (`Cmd+Shift+D`)
+2. Select desired configuration from dropdown
+3. Set breakpoints by clicking line numbers
+4. Press `F5` or click the green play button
+5. Use debug controls for step-over, step-into, continue, etc.
+
 ## Documentation Files
 
 - `DASHBOARD_FEATURES.md`: Detailed dashboard functionality
