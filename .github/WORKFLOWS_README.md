@@ -100,7 +100,7 @@ Update the `flutter-version` in both workflows:
 ```yaml
 - uses: subosito/flutter-action@v2
   with:
-    flutter-version: "3.24.5" # Change this
+    flutter-version: "3.27.0" # Current version (compatible with health package)
 ```
 
 ### Adding Coverage Thresholds
