@@ -67,3 +67,7 @@ The project follows standard Flutter conventions for building and running.
 -   **Linting**: The project uses the `flutter_lints` package. Adhere to the linting rules defined in `analysis_options.yaml`.
 -   **AI Assistant**: The AI feature has two modes: `DemoAIAssistantScreen` (for UI/UX testing without an API key) and `AIAssistantScreen` (for production). The switch between them is handled in the router.
 -   **Environment Variables**: API keys and other secrets should be stored in a `.env` file and accessed via the `flutter_dotenv` package. Do not commit the `.env` file to version control.
+
+## Gemini Agent Role for this Project
+
+For this project only, my role is to analyze the project code quality, performance, readability, and code patterns. I am a QA/Tester and will not directly update the code unless explicitly requested by the user.
