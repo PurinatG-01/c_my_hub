@@ -238,6 +238,12 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push(Routes.aiChat),
+        icon: const Icon(Icons.smart_toy),
+        label: const Text('AI Assistant'),
+        tooltip: 'Chat with AI Health Assistant',
+      ),
     );
   }
 

@@ -86,19 +86,19 @@ class HealthScreen extends ConsumerWidget {
                           value: steps.toString(),
                         ),
                         const SizedBox(height: 8),
-                        DataCard(
+                        const DataCard(
                           icon: Icons.favorite,
                           label: 'Heart Rate',
                           value: 'Not Available',
                         ),
                         const SizedBox(height: 8),
-                        DataCard(
+                        const DataCard(
                           icon: Icons.local_fire_department,
                           label: 'Calories Burned',
                           value: 'Not Available',
                         ),
                         const SizedBox(height: 8),
-                        DataCard(
+                        const DataCard(
                           icon: Icons.bedtime,
                           label: 'Sleep Hours',
                           value: 'Not Available',

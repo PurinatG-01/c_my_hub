@@ -51,6 +51,18 @@ dependencies:
   # Preferences storage
   shared_preferences: ^2.2.2
 
+  # HTTP client for API calls
+  http: ^1.2.0
+
+  # Secure storage for API keys
+  flutter_secure_storage: ^9.2.2
+
+  # Environment variables
+  flutter_dotenv: ^5.1.0
+
+  # UUID generation for message tracking
+  uuid: ^4.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
