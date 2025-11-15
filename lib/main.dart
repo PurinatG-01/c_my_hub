@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +14,7 @@ void main() async {
   try {
     await HealthService().init();
   } catch (e) {
-    print('Health service initialization failed: $e');
+    developer.log('Health service initialization failed: $e', name: 'Main');
     // Continue without health service
   }
 

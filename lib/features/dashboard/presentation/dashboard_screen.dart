@@ -296,46 +296,4 @@ class _LoadingDataCard extends StatelessWidget {
   }
 }
 
-/// Error card widget with retry functionality
-class _ErrorCard extends StatelessWidget {
-  const _ErrorCard({
-    required this.error,
-    required this.onRetry,
-  });
 
-  final String error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Icon(Icons.error, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading health data',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

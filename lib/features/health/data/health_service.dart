@@ -1,5 +1,5 @@
 // Singleton Health Service
-import 'package:flutter/foundation.dart';
+import 'dart:developer' as developer;
 import 'package:health/health.dart';
 
 class HealthService {
@@ -18,7 +18,7 @@ class HealthService {
       await getHealthDataFromTypes(HealthDataType.values);
     } catch (e) {
       // Handle platform-specific errors (e.g., health not available on macOS)
-      print('Health service initialization failed: $e');
+      developer.log('Health service initialization failed: $e', name: 'HealthService');
       // Continue without crashing the app
     }
   }
@@ -45,7 +45,7 @@ class HealthService {
       return steps ?? -1;
     } catch (e) {
       // Return demo data when health service is not available
-      print('Error getting steps: $e');
+      developer.log('Error getting steps: $e', name: 'HealthService');
       return 8547; // Demo step count for testing
     }
   }
@@ -71,7 +71,7 @@ class HealthService {
       }
       return null;
     } catch (e) {
-      print('Error getting heart rate: $e');
+      developer.log('Error getting heart rate: $e', name: 'HealthService');
       return 72.0; // Demo heart rate for testing
     }
   }
@@ -120,7 +120,7 @@ class HealthService {
       }
       return null;
     } catch (e) {
-      print('Error getting sleep duration: $e');
+      developer.log('Error getting sleep duration: $e', name: 'HealthService');
       return 7.5; // Demo sleep duration for testing (7.5 hours)
     }
   }
@@ -145,7 +145,7 @@ class HealthService {
       }
       return 0;
     } catch (e) {
-      print('Error getting weekly step average: $e');
+      developer.log('Error getting weekly step average: $e', name: 'HealthService');
       return 7250.0; // Demo weekly average
     }
   }
@@ -174,7 +174,7 @@ class HealthService {
       }
       return null;
     } catch (e) {
-      print('Error getting distance: $e');
+      developer.log('Error getting distance: $e', name: 'HealthService');
       return 3200.0; // Demo distance in meters (3.2 km)
     }
   }
@@ -200,7 +200,7 @@ class HealthService {
       }
       return null;
     } catch (e) {
-      print('Error getting active minutes: $e');
+      developer.log('Error getting active minutes: $e', name: 'HealthService');
       return 45; // Demo active minutes
     }
   }

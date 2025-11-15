@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +65,7 @@ class ThemeNotifier extends StateNotifier<AppThemeMode> {
       }
     } catch (e) {
       // If there's an error loading, keep the default (system)
-      print('Error loading theme preference: $e');
+      developer.log('Error loading theme preference: $e', name: 'ThemeProvider');
     }
   }
 
@@ -74,7 +75,7 @@ class ThemeNotifier extends StateNotifier<AppThemeMode> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_themeKey, themeMode.index);
     } catch (e) {
-      print('Error saving theme preference: $e');
+      developer.log('Error saving theme preference: $e', name: 'ThemeProvider');
     }
   }
 

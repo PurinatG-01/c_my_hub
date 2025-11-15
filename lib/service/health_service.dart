@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:health/health.dart';
 
 /// Singleton Health Service for managing health data access and operations
@@ -112,7 +113,7 @@ class HealthService {
 
       return workoutData;
     } catch (e) {
-      print('Error getting workout data: $e');
+      developer.log('Error getting workout data: $e', name: 'HealthService');
       return [];
     }
   }

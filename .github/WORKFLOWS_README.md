@@ -100,7 +100,7 @@ Update the `flutter-version` in both workflows:
 ```yaml
 - uses: subosito/flutter-action@v2
   with:
-    flutter-version: "3.24.5"  # Stable version compatible with health package v13.1.3
+    flutter-version: "latest"  # Always use latest stable Flutter version
     channel: "stable"
 ```
 
