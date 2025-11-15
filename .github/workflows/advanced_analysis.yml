@@ -30,8 +30,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.0"
-          channel: "stable"
+          flutter-version: "3.39.0"
+          channel: "master"
           cache: true
 
       - name: Get dependencies
@@ -109,8 +109,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.0"
-          channel: "stable"
+          flutter-version: "3.39.0"
+          channel: "master"
 
       - name: Analyze dependencies
         run: |

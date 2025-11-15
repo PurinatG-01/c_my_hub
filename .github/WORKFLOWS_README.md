@@ -100,7 +100,8 @@ Update the `flutter-version` in both workflows:
 ```yaml
 - uses: subosito/flutter-action@v2
   with:
-    flutter-version: "3.27.0" # Current version (compatible with health package)
+    flutter-version: "3.39.0"  # Matches local environment with Dart SDK 3.11.0
+    channel: "master"
 ```
 
 ### Adding Coverage Thresholds
