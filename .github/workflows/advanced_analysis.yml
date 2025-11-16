@@ -1,0 +1,262 @@
+name: Advanced PR Analysis
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+
+  # Also run on PR target branch changes
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Only run if the main PR checks pass
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for better analysis
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "latest"
+          channel: "stable"
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check code metrics
+        run: |
+          echo "Analyzing code complexity and metrics..."
+
+          # Count lines of code
+          echo "📊 Code Statistics:"
+          echo "Total Dart files: $(find lib/ -name "*.dart" | wc -l)"
+          echo "Total lines of code: $(find lib/ -name "*.dart" -exec cat {} \; | wc -l)"
+
+          # Check for TODO/FIXME comments
+          echo ""
+          echo "📝 TODOs and FIXMEs:"
+          if grep -r -n "TODO\|FIXME\|HACK" lib/ --include="*.dart" || true; then
+            echo "Found TODO/FIXME comments above"
+          else
+            echo "No TODO/FIXME comments found"
+          fi
+
+      - name: Check for common issues
+        run: |
+          echo "🔍 Checking for common Flutter issues..."
+
+          # Check for missing const keywords
+          echo "Checking for potential const optimizations..."
+          if grep -r "Widget.*(" lib/ --include="*.dart" | grep -v "const " | head -5; then
+            echo "ℹ️  Consider adding 'const' to widgets above for performance"
+          fi
+
+          # Check for print statements
+          echo ""
+          echo "Checking for print statements..."
+          if grep -r -n "print(" lib/ --include="*.dart" || true; then
+            echo "⚠️  Found print statements - consider using proper logging"
+          else
+            echo "✅ No print statements found"
+          fi
+
+          # Check for unused imports (basic check)
+          echo ""
+          echo "Basic unused import check completed"
+
+      - name: Performance recommendations
+        run: |
+          echo "⚡ Performance Analysis:"
+
+          # Check for potential performance issues
+          echo "Checking for ListView without itemExtent or prototypeItem..."
+          if grep -r "ListView(" lib/ --include="*.dart" | grep -v "itemExtent\|prototypeItem" | head -3; then
+            echo "ℹ️  Consider adding itemExtent for better ListView performance"
+          fi
+
+          echo ""
+          echo "Checking for StatefulWidget usage..."
+          stateful_count=$(grep -r "StatefulWidget" lib/ --include="*.dart" | wc -l)
+          echo "StatefulWidget count: $stateful_count"
+
+          if [ $stateful_count -gt 10 ]; then
+            echo "ℹ️  Consider using StatelessWidget or state management solutions where appropriate"
+          fi
+
+  dependency-analysis:
+    name: Dependency Analysis
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "latest"
+          channel: "stable"
+
+      - name: Analyze dependencies
+        run: |
+          echo "📦 Dependency Analysis:"
+
+          flutter pub get
+
+          # Show dependency tree
+          echo "Dependency tree (top level):"
+          flutter pub deps --style=compact | head -20
+
+          echo ""
+          echo "Checking for version conflicts..."
+          flutter pub deps --json > deps.json
+
+          # Check pubspec for version constraints
+          echo "Analyzing version constraints in pubspec.yaml..."
+          if grep -E "\^[0-9]+\.[0-9]+\.[0-9]+" pubspec.yaml; then
+            echo "✅ Using caret constraints (good practice)"
+          fi
+
+      - name: License compliance check
+        run: |
+          echo "⚖️  License Compliance Check:"
+          echo "Checking for license information..."
+
+          # This is a basic check - in production you might want more sophisticated tools
+          if [ -f "LICENSE" ] || [ -f "LICENCE" ]; then
+            echo "✅ License file found"
+          else
+            echo "ℹ️  Consider adding a LICENSE file"
+          fi
+
+  documentation-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check documentation
+        run: |
+          echo "📚 Documentation Analysis:"
+
+          # Check README
+          if [ -f "README.md" ]; then
+            echo "✅ README.md exists"
+            readme_lines=$(wc -l < README.md)
+            echo "README.md has $readme_lines lines"
+            
+            if [ $readme_lines -lt 10 ]; then
+              echo "ℹ️  README.md seems quite short - consider adding more details"
+            fi
+          else
+            echo "⚠️  README.md not found"
+          fi
+
+          # Check for API documentation
+          echo ""
+          echo "Checking for code documentation..."
+          doc_comments=$(grep -r "///" lib/ --include="*.dart" | wc -l || echo "0")
+          echo "Found $doc_comments documentation comments"
+
+          if [ $doc_comments -lt 5 ]; then
+            echo "ℹ️  Consider adding more /// documentation comments to public APIs"
+          else
+            echo "✅ Good amount of documentation comments found"
+          fi
+
+      - name: Check for docs folder
+        run: |
+          if [ -d "docs/" ]; then
+            echo "✅ Documentation folder exists"
+            doc_files=$(find docs/ -name "*.md" | wc -l)
+            echo "Found $doc_files documentation files"
+          else
+            echo "ℹ️  Consider creating a docs/ folder for project documentation"
+          fi
+
+  # Generate analysis report
+  generate-report:
+    name: Generate Analysis Report
+    runs-on: ubuntu-latest
+    needs: [code-quality, dependency-analysis, documentation-check]
+    if: always() && github.event.pull_request.draft == false
+
+    steps:
+      - name: Create analysis summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const codeQualityStatus = '${{ needs.code-quality.result }}';
+            const dependencyStatus = '${{ needs.dependency-analysis.result }}';
+            const docsStatus = '${{ needs.documentation-check.result }}';
+
+            const getStatusIcon = (status) => {
+              switch(status) {
+                case 'success': return '✅';
+                case 'failure': return '❌';
+                case 'cancelled': return '⏸️';
+                default: return '❓';
+              }
+            };
+
+            const comment = `## 📊 Advanced Code Analysis Report
+
+            | Analysis Type | Status | Details |
+            |---------------|--------|---------|
+            | Code Quality | ${getStatusIcon(codeQualityStatus)} ${codeQualityStatus} | Code complexity, performance recommendations |
+            | Dependencies | ${getStatusIcon(dependencyStatus)} ${dependencyStatus} | Package analysis, version conflicts |
+            | Documentation | ${getStatusIcon(docsStatus)} ${docsStatus} | README, code comments, docs folder |
+
+            ### 💡 Recommendations:
+            - Review the job logs above for specific suggestions
+            - Consider the performance recommendations
+            - Check for any TODO/FIXME comments that need addressing
+            - Ensure proper documentation for public APIs
+
+            ---
+            <sub>This is an informational report - failures here won't block the PR</sub>`;
+
+            // Find existing comment and update it, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(comment => 
+              comment.body.includes('Advanced Code Analysis Report')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }

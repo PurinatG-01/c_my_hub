@@ -1,3 +1,16 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/master"
+  "dart.flutterSdkPath": ".fvm/versions/stable",
+  "deno.enablePaths": [
+    "./supabase/functions",
+    "./backend/supabase/functions"
+  ],
+  "deno.enable": false,
+  "typescript.validate.enable": true,
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "files.watcherExclude": {
+    "**/supabase/functions/**": false
+  }
 }

@@ -1,0 +1,98 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Debug",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Flutter Profile",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Flutter Test Debug",
+      "type": "dart",
+      "request": "launch",
+      "program": "${file}",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Backend Debug (Node.js + TypeScript)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect", "src/index.ts"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "envFile": "${workspaceFolder}/backend/.env",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/backend/**",
+        "!**/node_modules/**"
+      ],
+      "restart": true,
+      "protocol": "inspector",
+      "outputCapture": "std"
+    },
+    {
+      "name": "Backend Debug (Break on Start)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect-brk", "src/index.ts"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "envFile": "${workspaceFolder}/backend/.env",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/backend/**",
+        "!**/node_modules/**"
+      ],
+      "restart": true,
+      "protocol": "inspector",
+      "outputCapture": "std"
+    },
+    {
+      "name": "Backend Debug (Attach)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/backend",
+      "remoteRoot": "${workspaceFolder}/backend",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack Debug (Frontend + Backend)",
+      "configurations": [
+        "Flutter Debug",
+        "Backend Debug (Node.js + TypeScript)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "1_fullstack",
+        "order": 1
+      }
+    }
+  ]
+}
