@@ -1,0 +1,11 @@
+# Supabase local development files
+.env.local
+*.log
+
+# Supabase CLI generated files
+.branches
+.temp
+db/
+volumes/
+
+
