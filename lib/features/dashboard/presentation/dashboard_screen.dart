@@ -295,5 +295,3 @@ class _LoadingDataCard extends StatelessWidget {
     );
   }
 }
-
-

@@ -100,7 +100,7 @@ Update the `flutter-version` in both workflows:
 ```yaml
 - uses: subosito/flutter-action@v2
   with:
-    flutter-version: "latest"  # Always use latest stable Flutter version
+    flutter-version: "latest" # Always use latest stable Flutter version
     channel: "stable"
 ```
 

@@ -18,7 +18,8 @@ class HealthService {
       await getHealthDataFromTypes(HealthDataType.values);
     } catch (e) {
       // Handle platform-specific errors (e.g., health not available on macOS)
-      developer.log('Health service initialization failed: $e', name: 'HealthService');
+      developer.log('Health service initialization failed: $e',
+          name: 'HealthService');
       // Continue without crashing the app
     }
   }
@@ -145,7 +146,8 @@ class HealthService {
       }
       return 0;
     } catch (e) {
-      developer.log('Error getting weekly step average: $e', name: 'HealthService');
+      developer.log('Error getting weekly step average: $e',
+          name: 'HealthService');
       return 7250.0; // Demo weekly average
     }
   }

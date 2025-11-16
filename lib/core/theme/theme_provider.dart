@@ -65,7 +65,8 @@ class ThemeNotifier extends StateNotifier<AppThemeMode> {
       }
     } catch (e) {
       // If there's an error loading, keep the default (system)
-      developer.log('Error loading theme preference: $e', name: 'ThemeProvider');
+      developer.log('Error loading theme preference: $e',
+          name: 'ThemeProvider');
     }
   }
 
