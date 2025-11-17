@@ -5,20 +5,16 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review, edited]
 
-  # Also run on PR target branch changes
-  pull_request_target:
-    branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review]
-
 # Only run if the main PR checks pass
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
+  checks: write
 
 jobs:
   code-quality:
@@ -207,11 +203,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [code-quality, dependency-analysis, documentation-check]
     if: always() && github.event.pull_request.draft == false
+    permissions:
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Create analysis summary
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const codeQualityStatus = '${{ needs.code-quality.result }}';
             const dependencyStatus = '${{ needs.dependency-analysis.result }}';
