@@ -106,6 +106,10 @@ By default the workflows install the latest stable toolchain by specifying only 
 
 If you ever need to pin CI to a specific release, replace the `channel` block above with an explicit version such as `flutter-version: "3.24.4"`. Avoid using `flutter-version: latest` because the Flutter action expects a concrete semantic version and will fail to resolve `latest`.
 
+### Monorepo layout
+
+All Flutter commands run from the `frontend/` directory via job-level `defaults.run.working-directory`. If you move the app or add more Flutter packages, update the relevant workflow jobs so `flutter pub get`, tests, and builds execute in the correct path.
+
 ### Adding Coverage Thresholds
 
 Uncomment and modify the coverage check section in `pr_checks.yml`:

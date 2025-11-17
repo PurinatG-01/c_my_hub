@@ -20,6 +20,9 @@ jobs:
     name: Code Quality Analysis
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
       - name: Checkout code
@@ -100,6 +103,9 @@ jobs:
     name: Dependency Analysis
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
       - name: Checkout code
