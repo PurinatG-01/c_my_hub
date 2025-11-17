@@ -95,14 +95,16 @@ dart pub audit
 
 ### Adjusting Flutter Version
 
-Update the `flutter-version` in both workflows:
+By default the workflows install the latest stable toolchain by specifying only the channel:
 
 ```yaml
 - uses: subosito/flutter-action@v2
   with:
-    flutter-version: "latest" # Always use latest stable Flutter version
     channel: "stable"
+    cache: true
 ```
+
+If you ever need to pin CI to a specific release, replace the `channel` block above with an explicit version such as `flutter-version: "3.24.4"`. Avoid using `flutter-version: latest` because the Flutter action expects a concrete semantic version and will fail to resolve `latest`.
 
 ### Adding Coverage Thresholds
 
