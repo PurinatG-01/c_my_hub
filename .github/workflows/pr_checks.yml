@@ -73,6 +73,7 @@ jobs:
             echo "✅ No analysis issues found"
           else
             echo "❌ Analysis issues detected"
+            exit 1
           fi
 
       - name: Run tests
