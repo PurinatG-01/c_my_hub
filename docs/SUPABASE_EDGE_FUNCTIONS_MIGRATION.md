@@ -76,9 +76,11 @@ backend/
 ├── supabase/
 │   ├── functions/
 │   │   ├── health/
-│   │   │   └── index.ts          # GET /health
+│   │   │   ├── index.ts          # GET /health
+│   │   │   └── deno.json         # Deno configuration
 │   │   ├── health-data/
-│   │   │   └── index.ts          # GET/POST /api/health-data
+│   │   │   ├── index.ts          # GET/POST /api/health-data
+│   │   │   └── deno.json         # Deno configuration
 │   │   └── _shared/
 │   │       ├── cors.ts           # CORS utilities
 │   │       ├── supabase.ts       # Supabase client helper
@@ -125,17 +127,58 @@ backend/
 
 ### Phase 4: Environment Configuration
 
-#### 4.1 Edge Function Secrets
+#### 4.1 Deno Configuration
+
+Each Edge Function requires a `deno.json` file for proper TypeScript support:
+
+**`supabase/functions/health/deno.json`:**
+```json
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.ns", "dom"],
+    "strict": true
+  },
+  "imports": {
+    "@supabase/functions-js": "jsr:@supabase/functions-js@2"
+  }
+}
+```
+
+**Key points:**
+- `lib: ["deno.ns", "dom"]` enables Deno runtime types
+- `imports` maps JSR packages for easier imports
+- Required for proper TypeScript compilation
+
+#### 4.2 Supabase Config (`config.toml`)
+
+Configure each function in `supabase/config.toml`:
+
+```toml
+[functions.health]
+enabled = true
+verify_jwt = true
+import_map = "./functions/health/deno.json"
+entrypoint = "./functions/health/index.ts"
+
+[functions.health-data]
+enabled = true
+verify_jwt = true
+import_map = "./functions/health-data/deno.json"
+entrypoint = "./functions/health-data/index.ts"
+```
+
+#### 4.3 Edge Function Secrets
 
 Edge Functions use Supabase secrets (not .env files):
 
 ```bash
 # Set secrets for edge functions
 supabase secrets set SUPABASE_URL=<your-url>
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=<your-key>
+supabase secrets set SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
-#### 4.2 Local Development
+#### 4.4 Local Development
 
 For local testing, create `.env.local` in the function directory:
 
@@ -247,17 +290,72 @@ const supabaseClient = createClient(
 )
 ```
 
+## Development Environment Setup
+
+### VS Code Configuration
+
+To avoid TypeScript errors when developing Edge Functions:
+
+1. **Install Deno Extension:**
+   - Install "Deno" extension by denoland in VS Code
+   - Reload VS Code window
+
+2. **Configure Settings:**
+   
+   Create `.vscode/settings.json` in project root:
+   ```json
+   {
+     "deno.enablePaths": [
+       "./supabase/functions",
+       "./backend/supabase/functions"
+     ],
+     "deno.enable": false
+   }
+   ```
+   
+   Create `supabase/functions/.vscode/settings.json`:
+   ```json
+   {
+     "deno.enable": true,
+     "typescript.validate.enable": false,
+     "typescript.tsdk": null
+   }
+   ```
+
+3. **Add Type Check Suppression:**
+   - Add `// @ts-nocheck` at the top of each function file
+   - This suppresses TypeScript errors while Deno handles type checking
+   - Functions will work correctly at runtime regardless
+
+### Function File Template
+
+Each function should start with:
+
+```typescript
+// @ts-nocheck
+// Setup type definitions for built-in Supabase Runtime APIs
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+
+Deno.serve(async (req) => {
+  // Function implementation
+})
+```
+
 ## Migration Checklist
 
 - [ ] Install Supabase CLI
+- [ ] Install Deno extension for VS Code
+- [ ] Configure VS Code settings for Deno
 - [ ] Initialize Supabase project in backend directory
 - [ ] Link to existing Supabase project
+- [ ] Create `deno.json` for each function
+- [ ] Configure `config.toml` with function settings
 - [ ] Create shared utilities (\_shared folder)
 - [ ] Migrate health endpoint
 - [ ] Migrate health-data GET endpoint
 - [ ] Migrate health-data POST endpoint
 - [ ] Set up environment secrets
-- [ ] Test functions locally
+- [ ] Test functions locally with `supabase start`
 - [ ] Deploy functions to Supabase
 - [ ] Update frontend API URLs
 - [ ] Test deployed functions
@@ -280,11 +378,39 @@ You can:
 - Set up alerts for errors
 - Review function logs
 
+## Troubleshooting
+
+### TypeScript Errors in Editor
+
+If you see "Cannot find name 'Deno'" errors:
+
+1. Verify Deno extension is installed and enabled
+2. Check VS Code settings are configured correctly
+3. Ensure `deno.json` exists in each function directory
+4. Verify `import_map` in `config.toml` points to correct `deno.json`
+5. Reload VS Code window
+6. Add `// @ts-nocheck` as temporary workaround if needed
+
+### Function Not Loading
+
+- Check `deno.json` has proper configuration
+- Verify `config.toml` has correct `import_map` and `entrypoint` paths
+- Ensure function directory name matches config section name
+- Check function has `index.ts` file
+
+### Import Errors
+
+- Verify JSR imports use correct syntax: `jsr:@package/name@version`
+- Check `deno.json` imports map is configured
+- Ensure Supabase Edge Runtime types are imported: `import "jsr:@supabase/functions-js/edge-runtime.d.ts"`
+
 ## Resources
 
 - [Supabase Edge Functions Docs](https://supabase.com/docs/guides/functions)
 - [Deno Runtime](https://deno.land/manual)
 - [Supabase JS Client](https://supabase.com/docs/reference/javascript/creating-a-client)
+- [Deno VS Code Extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
+- [JSR (JavaScript Registry)](https://jsr.io/)
 
 ## Next Steps
 
