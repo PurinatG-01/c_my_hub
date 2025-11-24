@@ -5,3 +5,13 @@
 # Xcode-related
 **/dgph
 **/xcuserdata/
+
+# Secrets & Certificates
+.env
+.env.*
+!.env.example
+GoogleService-Info.plist
+*.p12
+*.pem
+*.key
+!public.key

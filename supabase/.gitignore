@@ -19,6 +19,3 @@ functions/.env.*
 !public.key
 secrets.*
 service-account*.json
-
-
-

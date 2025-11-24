@@ -76,4 +76,45 @@ backend/supabase/.temp
 backend/supabase/db/
 backend/supabase/volumes/
 
+# Environment Variables & Secrets
 .env
+.env.*
+!.env.example
+!.env.template
+*.env
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+supabase/functions/.env
+supabase/functions/.env.*
+!supabase/functions/.env.example
+
+# API Keys & Credentials
+**/secrets.yaml
+**/secrets.yml
+**/secrets.json
+**/*secret*
+**/*credential*
+**/*password*
+**/api-keys.*
+**/apikeys.*
+**/*.pem
+**/*.p12
+**/*.pfx
+**/*.cer
+**/*.crt
+**/*.der
+**/*.key
+!**/public.key
+
+# Service Account Keys
+**/serviceAccountKey.json
+**/service-account*.json
+**/gcp-key*.json
+**/firebase-adminsdk*.json
+
+# OAuth & Auth Tokens
+**/.firebase/
+**/oauth-token*
+**/auth-token*
+**/*.token
