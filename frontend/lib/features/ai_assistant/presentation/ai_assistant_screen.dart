@@ -1,7 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:c_my_hub/features/ai_assistant/data/health_agent_service.dart';
 
-import '../domain/ai_assistant_providers.dart';
+// Providers
+final healthAgentServiceProvider = Provider<HealthAgentService>((ref) {
+  return HealthAgentService();
+});
+
+final chatMessagesProvider = StateProvider<List<ChatMessage>>((ref) => []);
+final isTypingProvider = StateProvider<bool>((ref) => false);
+
+class ChatMessage {
+  final String text;
+  final bool isUser;
+  final DateTime timestamp;
+  final bool isError;
+
+  ChatMessage({
+    required this.text,
+    required this.isUser,
+    required this.timestamp,
+    this.isError = false,
+  });
+}
 
 class AIAssistantScreen extends ConsumerStatefulWidget {
   const AIAssistantScreen({super.key});
@@ -11,308 +32,195 @@ class AIAssistantScreen extends ConsumerStatefulWidget {
 }
 
 class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen> {
-  final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeAssistant();
+  void dispose() {
+    _textController.dispose();
+    _scrollController.dispose();
+    ref.read(healthAgentServiceProvider).dispose();
+    super.dispose();
   }
 
-  Future<void> _initializeAssistant() async {
-    try {
-      final service = ref.read(openAIAssistantServiceProvider);
-
-      // In a real app, you would get this from secure storage or environment
-      // For demo purposes, you'll need to set your actual OpenAI API key
-      await service.initialize(
-        apiKey: 'your-openai-api-key-here', // Replace with your actual key
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
       );
+    }
+  }
 
-      // Create or retrieve assistant
-      await service.createHealthAssistant();
+  Future<void> _sendMessage() async {
+    final message = _textController.text.trim();
+    if (message.isEmpty) return;
 
-      setState(() {
-        _isInitialized = true;
-      });
+    _textController.clear();
 
-      // Assistant is ready for conversations
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to initialize AI Assistant: $e'),
-            backgroundColor: Colors.red,
+    // Add user message
+    ref.read(chatMessagesProvider.notifier).update((state) => [
+          ...state,
+          ChatMessage(
+            text: message,
+            isUser: true,
+            timestamp: DateTime.now(),
           ),
-        );
-      }
+        ]);
+
+    ref.read(isTypingProvider.notifier).state = true;
+
+    // Wait a bit for UI update then scroll
+    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+
+    try {
+      final service = ref.read(healthAgentServiceProvider);
+      final response = await service.sendMessage(message: message);
+
+      if (!mounted) return;
+
+      ref.read(chatMessagesProvider.notifier).update((state) => [
+            ...state,
+            ChatMessage(
+              text: response,
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          ]);
+
+      ref.read(isTypingProvider.notifier).state = false;
+      _scrollToBottom();
+    } catch (e) {
+      if (!mounted) return;
+      ref.read(chatMessagesProvider.notifier).update((state) => [
+            ...state,
+            ChatMessage(
+              text: 'Error: $e',
+              isUser: false,
+              timestamp: DateTime.now(),
+              isError: true,
+            ),
+          ]);
+      ref.read(isTypingProvider.notifier).state = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final messages = ref.watch(chatMessagesProvider);
+    final isTyping = ref.watch(isTypingProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('AI Health Assistant'),
-            Text(
-              _isInitialized ? 'OpenAI Assistant Connected' : 'Initializing...',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _isInitialized ? _clearChat : null,
-            tooltip: 'Clear conversation',
-          ),
-        ],
+        title: const Text('AI Health Assistant'),
+        elevation: 0,
       ),
       body: Column(
         children: [
-          if (!_isInitialized) const LinearProgressIndicator(),
           Expanded(
-            child: messages.isEmpty
-                ? const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.chat_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Your AI Health Assistant is ready',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Start a conversation to get personalized health insights',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      return ChatBubble(message: message);
-                    },
-                  ),
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final msg = messages[index];
+                return _buildMessageBubble(msg, theme);
+              },
+            ),
           ),
-          _buildMessageInput(),
+          if (isTyping)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: LinearProgressIndicator(),
+            ),
+          _buildInputArea(theme),
         ],
       ),
     );
   }
 
-  Widget _buildMessageInput() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
+  Widget _buildMessageBubble(ChatMessage msg, ThemeData theme) {
+    final isUser = msg.isUser;
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isUser
+              ? theme.colorScheme.primary
+              : msg.isError
+                  ? theme.colorScheme.errorContainer
+                  : theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16).copyWith(
+            bottomRight: isUser ? const Radius.circular(0) : null,
+            bottomLeft: !isUser ? const Radius.circular(0) : null,
+          ),
+        ),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        child: Text(
+          msg.text,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: isUser
+                ? theme.colorScheme.onPrimary
+                : msg.isError
+                    ? theme.colorScheme.onErrorContainer
+                    : theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              enabled: _isInitialized,
-              decoration: InputDecoration(
-                hintText: _isInitialized
-                    ? 'Ask about your health data...'
-                    : 'Initializing assistant...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-              ),
-              onSubmitted: _isInitialized ? _sendMessage : null,
-              maxLines: null,
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed:
-                _isInitialized && _messageController.text.trim().isNotEmpty
-                    ? () => _sendMessage(_messageController.text)
-                    : null,
-            icon: const Icon(Icons.send),
-            style: IconButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Future<void> _sendMessage(String message) async {
-    if (message.trim().isEmpty) return;
-
-    _messageController.clear();
-
-    // Send message through the provider
-    await ref.read(chatMessagesProvider.notifier).sendMessage(message);
-
-    // Scroll to bottom
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void _clearChat() {
-    ref.read(chatMessagesProvider.notifier).clearMessages();
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-}
-
-class ChatBubble extends StatelessWidget {
-  final ChatMessage message;
-
-  const ChatBubble({
-    super.key,
-    required this.message,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isUser = message.role == 'user';
-    final isTyping = message.isTyping;
-
+  Widget _buildInputArea(ThemeData theme) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isUser) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Theme.of(context).primaryColor,
-              child: Icon(
-                isTyping ? Icons.more_horiz : Icons.smart_toy,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              decoration: BoxDecoration(
-                color: isUser
-                    ? Theme.of(context).primaryColor
-                    : Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(18).copyWith(
-                  bottomLeft: isUser
-                      ? const Radius.circular(18)
-                      : const Radius.circular(4),
-                  bottomRight: isUser
-                      ? const Radius.circular(4)
-                      : const Radius.circular(18),
-                ),
-              ),
-              child: isTyping
-                  ? _buildTypingIndicator()
-                  : Text(
-                      message.content,
-                      style: TextStyle(
-                        color: isUser
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-            ),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
           ),
-          if (isUser) ...[
-            const SizedBox(width: 8),
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(
-                Icons.person,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
-          ],
         ],
       ),
-    );
-  }
-
-  Widget _buildTypingIndicator() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (int i = 0; i < 3; i++) ...[
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 600 + (i * 200)),
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(0, -4 * (1 - value).abs()),
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey.withOpacity(0.5 + (value * 0.5)),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _textController,
+                decoration: InputDecoration(
+                  hintText: 'Ask about your health...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHighest,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
                   ),
                 ),
-              );
-            },
-          ),
-          if (i < 2) const SizedBox(width: 4),
-        ],
-      ],
+                textCapitalization: TextCapitalization.sentences,
+                onSubmitted: (_) => _sendMessage(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FloatingActionButton(
+              onPressed: _sendMessage,
+              mini: true,
+              elevation: 0,
+              child: const Icon(Icons.send),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
