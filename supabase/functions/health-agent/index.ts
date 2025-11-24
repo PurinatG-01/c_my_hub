@@ -2,7 +2,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")
-const WORKFLOW_ID = Deno.env.get("WORKFLOW_ID") || "wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892"
+const WORKFLOW_ID = Deno.env.get("WORKFLOW_ID")
 
 console.log("Health Agent Workflow Service initialized")
 
