@@ -32,3 +32,16 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Secrets & Certificates
+.env
+.env.*
+!.env.example
+GoogleService-Info.plist
+*.mobileprovision
+*.certSigningRequest
+*.p12
+*.pem
+*.key
+!public.key
+exportOptions.plist

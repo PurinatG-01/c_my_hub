@@ -1,1 +1,9 @@
 flutter/ephemeral
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!public.key
