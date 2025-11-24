@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/health_service.dart';
+import '../../../service/health_service.dart';
 
 // Health Service Provider
 final healthServiceProvider = Provider<HealthService>((ref) {

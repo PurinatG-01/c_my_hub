@@ -165,9 +165,8 @@ class DashboardScreen extends ConsumerWidget {
                                 data: (minutes) => DataCard(
                                   icon: Icons.fitness_center,
                                   label: 'Active Time',
-                                  value: minutes != null
-                                      ? '${minutes} min'
-                                      : 'N/A',
+                                  value:
+                                      minutes != null ? '$minutes min' : 'N/A',
                                   onTap: () => context.push(Routes.health),
                                 ),
                                 loading: () =>
