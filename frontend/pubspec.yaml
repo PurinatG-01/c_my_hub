@@ -63,6 +63,9 @@ dependencies:
   # UUID generation for message tracking
   uuid: ^4.2.0
 
+  # Markdown rendering
+  flutter_markdown: ^0.7.4+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
