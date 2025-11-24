@@ -21,8 +21,8 @@ supabase link --project-ref your-project-ref
 # Set OpenAI API key
 supabase secrets set OPENAI_API_KEY=sk-proj-your-api-key-here
 
-# Set workflow ID (optional - has default)
-supabase secrets set WORKFLOW_ID=wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892
+# Set workflow ID
+supabase secrets set WORKFLOW_ID=wf_your_workflow_id_here
 
 # Verify secrets are set
 supabase secrets list

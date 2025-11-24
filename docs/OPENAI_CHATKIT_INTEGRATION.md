@@ -14,7 +14,7 @@ This document describes the integration of OpenAI's ChatKit workflow system with
 
 ### 2. OpenAI Workflow Configuration
 
-- **Workflow ID**: `wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892`
+- **Workflow ID**: Set via environment variable `WORKFLOW_ID`
 - **Version**: `2`
 - **Source**: Created in OpenAI's Agent Builder
 - **API**: Uses ChatKit API for workflow invocation
@@ -100,7 +100,7 @@ data: {"sessionId":"cksess_..."}
     "client_secret": "ek_...",
     "user": "test-user-123",
     "workflow": {
-      "id": "wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892"
+      "id": "wf_your_workflow_id"
     }
   },
   "message": "Session created successfully"

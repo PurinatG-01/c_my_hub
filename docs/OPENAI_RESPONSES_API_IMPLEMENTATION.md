@@ -30,8 +30,8 @@ Set these in your Supabase project:
 # Required
 OPENAI_API_KEY=sk-proj-...
 
-# Optional (has default in code)
-WORKFLOW_ID=wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892
+# Required
+WORKFLOW_ID=wf_your_workflow_id_here
 ```
 
 To set environment variables:
@@ -39,7 +39,7 @@ To set environment variables:
 ```bash
 # Using Supabase CLI
 supabase secrets set OPENAI_API_KEY=sk-proj-...
-supabase secrets set WORKFLOW_ID=wf_690b57c50db08190b1b4a7d44e8f884a0d58893a1aea4892
+supabase secrets set WORKFLOW_ID=wf_your_workflow_id_here
 
 # Or via Supabase Dashboard
 # Project Settings → Edge Functions → Secrets
