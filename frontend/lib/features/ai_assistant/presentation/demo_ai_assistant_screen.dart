@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../demo/demo_ai_service.dart';
 
@@ -274,13 +275,100 @@ class DemoChatBubble extends StatelessWidget {
               ),
               child: isTyping
                   ? _buildTypingIndicator()
-                  : Text(
-                      message.content,
-                      style: TextStyle(
-                        color: isUser
-                            ? Colors.white
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                  : MarkdownBody(
+                      data: message.content,
+                      selectable: true,
+                      styleSheet: MarkdownStyleSheet(
+                        p: TextStyle(
+                          color: isUser
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        strong: TextStyle(
+                          color: isUser
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        em: TextStyle(
+                          color: isUser
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        code: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: isUser
+                                  ? Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                              backgroundColor: isUser
+                                  ? Colors.white.withOpacity(0.2)
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainer
+                                      .withOpacity(0.5),
+                              fontFamily: 'monospace',
+                            ),
+                        codeblockDecoration: BoxDecoration(
+                          color: isUser
+                              ? Colors.white.withOpacity(0.2)
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainer
+                                  .withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        blockquote: TextStyle(
+                          color: isUser
+                              ? Colors.white.withOpacity(0.8)
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant
+                                  .withOpacity(0.8),
+                          fontStyle: FontStyle.italic,
+                        ),
+                        h1: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: isUser
+                                  ? Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                            ),
+                        h2: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: isUser
+                                  ? Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                            ),
+                        h3: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: isUser
+                                  ? Colors.white
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                            ),
+                        listBullet: TextStyle(
+                          color: isUser
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        listIndent: 16,
+                        a: TextStyle(
+                          color: isUser
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
+                      onTapLink: (text, href, title) {
+                        if (href != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Link: $href')),
+                          );
+                        }
+                      },
                     ),
             ),
           ),

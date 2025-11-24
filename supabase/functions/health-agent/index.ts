@@ -2,9 +2,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")
-const WORKFLOW_ID = Deno.env.get("WORKFLOW_ID")
 
-console.log("Health Agent Workflow Service initialized")
+console.log("Health Agent Service initialized")
 
 Deno.serve(async (req) => {
   try {
@@ -52,18 +51,33 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log("Processing request with workflow:", WORKFLOW_ID)
+    console.log("Processing health assistant request")
 
-    // Call OpenAI Responses API with workflow ID
+    // Use OpenAI Chat Completions API with a health assistant system prompt
     const payload = {
-      model: "gpt-4.1",
-      workflow: { id: WORKFLOW_ID },
-      input: { text: message },
-      // Optional: maintain conversation context
-      ...(session_id && { conversation: { id: session_id } })
+      model: "gpt-4-turbo-preview",
+      messages: [
+        {
+          role: "system",
+          content: `You are a knowledgeable health and wellness assistant. Your role is to:
+- Provide evidence-based health information and wellness tips
+- Encourage healthy lifestyle choices
+- Help users understand health metrics and data
+- Offer motivation and support for health goals
+- Suggest when to consult healthcare professionals
+
+Important: You are not a doctor. Always remind users to consult healthcare professionals for medical advice, diagnosis, or treatment.`
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 500
     }
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
@@ -84,7 +98,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json()
-    const output = data.output_text ?? ""
+    const output = data.choices?.[0]?.message?.content ?? "I'm sorry, I couldn't generate a response."
 
     console.log("Response received successfully")
 
