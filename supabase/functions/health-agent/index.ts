@@ -2,8 +2,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")
+const WORKFLOW_ID = Deno.env.get("OPENAI_WORKFLOW_ID") // Set this in your Supabase secrets
 
-console.log("Health Agent Service initialized")
+console.log("Health Agent ChatKit Service initialized")
 
 Deno.serve(async (req) => {
   try {
@@ -36,11 +37,24 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { message, session_id } = await req.json()
-
-    if (!message) {
+    if (!WORKFLOW_ID) {
       return new Response(
-        JSON.stringify({ error: "Message is required" }),
+        JSON.stringify({ error: "Workflow ID not configured" }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
+        }
+      )
+    }
+
+    const { device_id } = await req.json()
+
+    if (!device_id) {
+      return new Response(
+        JSON.stringify({ error: "device_id is required" }),
         {
           status: 400,
           headers: {
@@ -51,62 +65,55 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log("Processing health assistant request")
+    console.log(`Creating Realtime session for device: ${device_id}`)
 
-    // Use OpenAI Chat Completions API with a health assistant system prompt
-    const payload = {
-      model: "gpt-4-turbo-preview",
-      messages: [
-        {
-          role: "system",
-          content: `You are a knowledgeable health and wellness assistant. Your role is to:
-- Provide evidence-based health information and wellness tips
-- Encourage healthy lifestyle choices
-- Help users understand health metrics and data
-- Offer motivation and support for health goals
-- Suggest when to consult healthcare professionals
-
-Important: You are not a doctor. Always remind users to consult healthcare professionals for medical advice, diagnosis, or treatment.`
-        },
-        {
-          role: "user",
-          content: message
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 500
+    // Create an ephemeral token for OpenAI Realtime API
+    // https://platform.openai.com/docs/api-reference/realtime-sessions
+    const sessionPayload = {
+      model: "gpt-4o-realtime-preview-2024-12-17",
+      voice: "alloy",
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const sessionResponse = await fetch("https://api.openai.com/v1/realtime/sessions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(sessionPayload),
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("OpenAI API error:", errorText)
-      return new Response(errorText, {
-        status: response.status,
-        headers: {
-          "Access-Control-Allow-Origin": "*"
+    if (!sessionResponse.ok) {
+      const errorText = await sessionResponse.text()
+      console.error("OpenAI Realtime session creation error:", errorText)
+      return new Response(
+        JSON.stringify({
+          error: "Failed to create Realtime session",
+          details: errorText
+        }),
+        {
+          status: sessionResponse.status,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
         }
-      })
+      )
     }
 
-    const data = await response.json()
-    const output = data.choices?.[0]?.message?.content ?? "I'm sorry, I couldn't generate a response."
+    const sessionData = await sessionResponse.json()
 
-    console.log("Response received successfully")
+    console.log("Realtime session created successfully:", sessionData.id)
 
+    // Return the client_secret and session details to the Flutter app
     return new Response(
       JSON.stringify({
-        session_id: session_id ?? null,
-        output,
-        raw: data
+        client_secret: sessionData.client_secret,
+        session: {
+          id: sessionData.id,
+          expires_at: sessionData.expires_at,
+        },
+        user: device_id,
       }),
       {
         headers: {
@@ -130,31 +137,43 @@ Important: You are not a doctor. Always remind users to consult healthcare profe
       }
     )
   }
-})/* ChatKit Session Service
+})
+
+/* ChatKit Session Service
  * 
- * This edge function creates ChatKit sessions for the Flutter app.
+ * This edge function creates ephemeral ChatKit sessions for the Flutter app.
+ * 
+ * Setup:
+ * Set these environment variables in Supabase:
+ * - OPENAI_API_KEY: Your OpenAI API key
+ * - OPENAI_WORKFLOW_ID: Your published workflow ID (e.g., wf_abc123)
  * 
  * Usage:
  * 
  * POST /functions/v1/health-agent
- * Body: { "deviceId": "user-device-id" }
+ * Body: { "device_id": "unique-device-identifier" }
  * 
  * Response: { 
  *   "client_secret": "ek_...",
- *   "session_id": "cksess_...",
- *   "user": "user-device-id",
- *   "workflow_id": "wf_..."
+ *   "session": {
+ *     "id": "cksess_...",
+ *     "expires_at": "2025-11-24T15:00:00Z",
+ *     "ttl_seconds": 3600
+ *   },
+ *   "workflow_id": "wf_...",
+ *   "user": "unique-device-identifier"
  * }
  * 
  * The Flutter app should:
  * 1. Call this endpoint to get a client_secret
- * 2. Use the client_secret with ChatKit SDK to connect to the chat
- * 3. The ChatKit SDK will handle WebSocket connections and streaming
+ * 2. Use the client_secret to open a WebSocket to wss://api.openai.com/v1/realtime
+ * 3. Send input events and listen for streaming responses
+ * 4. Refresh the secret before expiry (recommended at 80% of TTL)
  * 
  * To test locally:
  * 
  * curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/health-agent' \
  *   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
  *   --header 'Content-Type: application/json' \
- *   --data '{"deviceId": "test-device-123"}'
+ *   --data '{"device_id": "test-device-123"}'
  */
