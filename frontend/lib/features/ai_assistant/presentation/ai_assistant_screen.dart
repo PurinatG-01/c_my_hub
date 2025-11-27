@@ -40,7 +40,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen> {
   void dispose() {
     _textController.dispose();
     _scrollController.dispose();
-    ref.read(healthAgentServiceProvider).dispose();
+    // Note: Provider-managed services are disposed automatically by Riverpod
     super.dispose();
   }
 
@@ -149,7 +149,7 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen> {
         : msg.isError
             ? theme.colorScheme.errorContainer
             : theme.colorScheme.surfaceContainerHighest;
-    
+
     final textColor = isUser
         ? theme.colorScheme.onPrimary
         : msg.isError

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/health/presentation/health_screen.dart';
-import '../../features/ai_assistant/presentation/ai_assistant_screen.dart';
+import '../../features/ai_assistant/presentation/realtime_ai_assistant_screen.dart';
 import 'routes.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -24,7 +24,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.aiChat,
         name: Routes.aiChat,
-        builder: (context, state) => const AIAssistantScreen(),
+        builder: (context, state) => const RealtimeAIAssistantScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
